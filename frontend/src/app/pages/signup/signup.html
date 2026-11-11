@@ -1,0 +1,87 @@
+<app-auth-layout [signup]="true">
+  <div class="eyebrow">Rejoindre Immovia</div>
+  <h1>Tout commence<br />ici.</h1>
+  <p class="intro">
+    Créez votre compte pour explorer les logements et enregistrer vos coups de cœur.
+  </p>
+  <app-feedback [error]="error()" />
+  <form [formGroup]="form" (ngSubmit)="submit()" novalidate [attr.aria-busy]="busy()">
+    <fieldset [disabled]="busy()">
+      <div class="field-row">
+        <app-form-field
+          fieldId="signup-prenom"
+          label="Prénom"
+          autocomplete="given-name"
+          placeholder="Votre prénom"
+          [control]="form.controls.prenom"
+        />
+        <app-form-field
+          fieldId="signup-nom"
+          label="Nom"
+          autocomplete="family-name"
+          placeholder="Votre nom"
+          [control]="form.controls.nom"
+        />
+      </div>
+      <app-form-field
+        fieldId="signup-email"
+        label="Adresse e-mail"
+        type="email"
+        autocomplete="email"
+        placeholder="exemple@email.com"
+        [control]="form.controls.email"
+      />
+      <app-form-field
+        fieldId="signup-phone"
+        label="Téléphone (facultatif)"
+        type="tel"
+        autocomplete="tel"
+        placeholder="+216 XX XXX XXX"
+        [control]="form.controls.telephone"
+      />
+      <div class="field-row">
+        <app-form-field
+          fieldId="signup-password"
+          label="Mot de passe"
+          type="password"
+          autocomplete="new-password"
+          placeholder="8 caractères min."
+          [control]="form.controls.password"
+        />
+        <app-form-field
+          fieldId="signup-confirm"
+          label="Confirmation"
+          type="password"
+          autocomplete="new-password"
+          placeholder="Confirmer"
+          [control]="form.controls.confirm"
+        />
+      </div>
+      @if (form.hasError('mismatch') && form.controls.confirm.touched) {
+        <p class="error-text" role="alert">Les deux mots de passe doivent être identiques.</p>
+      }
+      <label class="checkline conditions"
+        ><input
+          type="checkbox"
+          formControlName="conditions"
+          aria-describedby="conditions-error"
+        />J’accepte les conditions d’utilisation.</label
+      >
+      @if (form.controls.conditions.invalid && form.controls.conditions.touched) {
+        <p class="error-text" id="conditions-error">
+          Acceptez les conditions pour créer votre compte.
+        </p>
+      }
+      <button class="btn btn-primary full" type="submit" [disabled]="busy()">
+        {{ busy() ? 'Création en cours…' : 'Créer mon compte' }} <span aria-hidden="true">→</span>
+      </button>
+    </fieldset>
+  </form>
+  <div class="divider-text">ou s’inscrire avec</div>
+  <button class="btn btn-secondary full" type="button" (click)="google()" [disabled]="busy()">
+    <span class="google-g" aria-hidden="true">G</span> Continuer avec Google
+  </button>
+  <div class="form-switch">
+    Déjà membre ? <a class="text-link" routerLink="/connexion">Se connecter</a>
+  </div>
+</app-auth-layout>

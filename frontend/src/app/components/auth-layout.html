@@ -1,0 +1,50 @@
+<div class="auth-layout">
+  <main class="auth-main" id="main-content">
+    <header class="auth-header">
+      <app-brand /><span class="tiny-tag">L’immobilier, autrement.</span>
+    </header>
+    <section class="auth-form" [class.signup-form]="signup()"><ng-content /></section>
+    <footer class="auth-footer">
+      <span>© 2026 Immovia — Projet d’intégration</span
+      ><span>Une expérience pensée pour vous.</span>
+    </footer>
+  </main>
+  <aside class="hero-panel" [class.hero-signup]="signup()" aria-label="L’univers Immovia">
+    <div class="hero-top">
+      <span class="pill-outline">✦ Immovia • immobilier intelligent</span
+      ><span class="pill-outline">Tunis · Tunisie</span>
+    </div>
+    <div class="hero-side-card">
+      <h3>
+        {{ signup() ? 'Votre nouvelle adresse commence ici.' : 'Des lieux qui vous ressemblent.' }}
+      </h3>
+      <p>
+        {{
+          signup()
+            ? 'Un seul compte pour découvrir des logements et gérer vos biens.'
+            : 'Une plateforme pour trouver, louer ou vendre un bien, avec sérénité.'
+        }}
+      </p>
+    </div>
+    <div class="hero-bottom">
+      <div class="hero-mark">IMMOVIA · LOCATION &amp; VENTE</div>
+      <h2>
+        {{
+          signup()
+            ? 'Votre prochain chez-vous commence ici.'
+            : 'Chaque adresse ouvre de nouvelles possibilités.'
+        }}
+      </h2>
+      <p>
+        {{
+          signup()
+            ? 'Rejoignez Immovia et avancez à votre rythme, que vous cherchiez ou proposiez un logement.'
+            : 'Découvrez des espaces pensés pour vos projets, avec une expérience simple et élégante.'
+        }}
+      </p>
+      <div class="bottom-points">
+        <span>✓ Élégant</span><span>✓ Sécurisé</span><span>✓ Intuitif</span>
+      </div>
+    </div>
+  </aside>
+</div>

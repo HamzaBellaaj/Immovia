@@ -1,0 +1,131 @@
+<app-dashboard-layout>
+  <section class="page-head">
+    <div>
+      <div class="eyebrow">Paramètres du compte</div>
+      <h1>Mon profil</h1>
+      <p>Retrouvez et modifiez vos informations personnelles.</p>
+    </div>
+    <span class="smallchip">✦ Espace personnel sécurisé</span>
+  </section>
+  <app-feedback
+    [error]="profiles.error()"
+    [loading]="profiles.loading() ? 'Chargement de votre profil…' : ''"
+  />
+  @if (profiles.error()) {
+    <button
+      class="btn btn-secondary retry-button"
+      type="button"
+      (click)="profiles.ensureLoaded(true)"
+      [disabled]="profiles.loading()"
+    >
+      Réessayer
+    </button>
+  }
+  @if (profiles.profile(); as profile) {
+    <div class="profile-grid">
+      <section class="card">
+        <div class="identity">
+          <div class="avatar big" aria-hidden="true">
+            {{ profile.prenom.charAt(0) }}{{ profile.nom.charAt(0) }}
+          </div>
+          <div>
+            <strong>{{ profile.prenom }} {{ profile.nom }}</strong>
+            <p>{{ profile.email }}</p>
+            <span class="smallchip">{{
+              profile.owner ? 'Compte propriétaire activé' : 'Compte utilisateur'
+            }}</span>
+          </div>
+        </div>
+        <h3>Informations personnelles</h3>
+        <p class="card-sub">Ces informations sont utilisées pour personnaliser votre compte.</p>
+        <app-feedback [error]="error()" [success]="success()" />
+        <form [formGroup]="form" (ngSubmit)="save()" novalidate [attr.aria-busy]="saving()">
+          <fieldset [disabled]="saving()">
+            <div class="field-row">
+              <app-form-field
+                fieldId="profile-prenom"
+                label="Prénom"
+                autocomplete="given-name"
+                [control]="form.controls.prenom"
+              /><app-form-field
+                fieldId="profile-nom"
+                label="Nom"
+                autocomplete="family-name"
+                [control]="form.controls.nom"
+              />
+            </div>
+            <div class="input-group">
+              <label for="profile-email">Adresse e-mail</label>
+              <div class="input-wrap">
+                <input
+                  id="profile-email"
+                  type="email"
+                  [value]="profile.email"
+                  readonly
+                  aria-describedby="email-help"
+                />
+              </div>
+              <p class="fine muted" id="email-help">
+                L’adresse confirmée est liée à votre compte et ne se modifie pas ici.
+              </p>
+            </div>
+            <app-form-field
+              fieldId="profile-phone"
+              label="Numéro de téléphone"
+              type="tel"
+              autocomplete="tel"
+              placeholder="+216 XX XXX XXX"
+              [control]="form.controls.telephone"
+            />
+            <div class="form-actions">
+              <button class="btn btn-primary" type="submit" [disabled]="saving()">
+                {{ saving() ? 'Enregistrement…' : 'Enregistrer les modifications' }}</button
+              ><button
+                class="btn btn-secondary"
+                type="button"
+                (click)="cancel()"
+                [disabled]="saving()"
+              >
+                Annuler
+              </button>
+            </div>
+          </fieldset>
+        </form>
+        <app-postman-token-button />
+      </section>
+      <section aria-label="Votre compte">
+        @if (!profile.owner) {
+          <div class="feature-card">
+            <div>
+              <div class="eyebrow">Une nouvelle possibilité</div>
+              <h3>Vous possédez<br />un logement ?</h3>
+              <p>Activez votre espace propriétaire pour préparer la gestion de vos futurs biens.</p>
+            </div>
+            <a class="btn" routerLink="/devenir-proprietaire"
+              >Devenir propriétaire <span aria-hidden="true">↗</span></a
+            >
+          </div>
+        } @else {
+          <div class="feature-card">
+            <h3>Votre espace<br />propriétaire est activé.</h3>
+            <p>Vous conservez toutes les fonctionnalités utilisateur avec le même compte.</p>
+          </div>
+        }
+        <div class="mini-card">
+          <div class="mini-ic" aria-hidden="true">✓</div>
+          <div>
+            <strong class="sm">Votre compte, en sécurité</strong>
+            <p>Votre accès est protégé par Supabase Auth.</p>
+          </div>
+        </div>
+        <div class="mini-card">
+          <div class="mini-ic" aria-hidden="true">⌂</div>
+          <div>
+            <strong class="sm">Un seul compte pour tout</strong>
+            <p>Cherchez un logement et devenez propriétaire sans réinscription.</p>
+          </div>
+        </div>
+      </section>
+    </div>
+  }
+</app-dashboard-layout>

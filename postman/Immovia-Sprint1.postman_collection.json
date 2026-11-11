@@ -1,0 +1,546 @@
+{
+  "info": {
+    "name": "Immovia — Sprint 1",
+    "description": "API Spring Boot. Utiliser un compte de recette : PUT modifie les informations et Become Owner active son statut. Nécessite une API démarrée, un vrai mot de passe PostgreSQL et un access token Supabase confirmé. Aucun token fourni. Voir postman/README.md.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{access_token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "item": [
+    {
+      "name": "GET Health",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/api/health",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "health"
+          ]
+        },
+        "auth": {
+          "type": "noauth"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('API opérationnelle', () => { pm.response.to.have.status(200); pm.response.to.be.json; pm.expect(pm.response.json().status).to.eql('UP'); pm.expect(pm.response.json().application).to.eql('immovia-backend'); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "POST Profile Sync",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/api/profile/sync",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "profile",
+            "sync"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "if (!String(pm.environment.get('access_token') || '').trim()) {",
+              "  pm.execution.skipRequest();",
+              "  throw new Error('Renseigner un access_token réel dans la valeur locale de l’environnement Postman.');",
+              "}"
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200 et JSON', () => { pm.response.to.have.status(200); pm.response.to.be.json; });",
+              "const profile = pm.response.json();",
+              "pm.test('Contrat canonique du profil', () => {",
+              "  pm.expect(profile).to.include.all.keys('id','firstName','lastName','email','phone','isOwner','createdAt','updatedAt');",
+              "  pm.expect(profile.id).to.match(/^[0-9a-f-]{36}$/i);",
+              "  pm.expect(profile.isOwner).to.be.a('boolean');",
+              "  pm.expect(Number.isNaN(Date.parse(profile.createdAt))).to.eql(false);",
+              "  pm.expect(Number.isNaN(Date.parse(profile.updatedAt))).to.eql(false);",
+              "});",
+              "pm.test('Aucun secret dans la réponse', () => { pm.expect(profile).to.not.have.any.keys('password','access_token','refresh_token'); });",
+              "pm.variables.set('profile_id', profile.id);",
+              "pm.test('Profil initial cohérent', () => pm.expect(profile.owner).to.eql(profile.isOwner));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "GET My Profile",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/api/profile/me",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "profile",
+            "me"
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "if (!String(pm.environment.get('access_token') || '').trim()) {",
+              "  pm.execution.skipRequest();",
+              "  throw new Error('Renseigner un access_token réel dans la valeur locale de l’environnement Postman.');",
+              "}"
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200 et JSON', () => { pm.response.to.have.status(200); pm.response.to.be.json; });",
+              "const profile = pm.response.json();",
+              "pm.test('Contrat canonique du profil', () => {",
+              "  pm.expect(profile).to.include.all.keys('id','firstName','lastName','email','phone','isOwner','createdAt','updatedAt');",
+              "  pm.expect(profile.id).to.match(/^[0-9a-f-]{36}$/i);",
+              "  pm.expect(profile.isOwner).to.be.a('boolean');",
+              "  pm.expect(Number.isNaN(Date.parse(profile.createdAt))).to.eql(false);",
+              "  pm.expect(Number.isNaN(Date.parse(profile.updatedAt))).to.eql(false);",
+              "});",
+              "pm.test('Aucun secret dans la réponse', () => { pm.expect(profile).to.not.have.any.keys('password','access_token','refresh_token'); });",
+              "pm.test('Même compte que sync dans le Runner', () => { const expected = pm.variables.get('profile_id'); if (expected) pm.expect(profile.id).to.eql(expected); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "PUT My Profile",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/api/profile/me",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "profile",
+            "me"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"firstName\": \"Amira\",\n  \"lastName\": \"Recette\",\n  \"phone\": \"+216 22 333 444\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "if (!String(pm.environment.get('access_token') || '').trim()) {",
+              "  pm.execution.skipRequest();",
+              "  throw new Error('Renseigner un access_token réel dans la valeur locale de l’environnement Postman.');",
+              "}"
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200 et JSON', () => { pm.response.to.have.status(200); pm.response.to.be.json; });",
+              "const profile = pm.response.json();",
+              "pm.test('Contrat canonique du profil', () => {",
+              "  pm.expect(profile).to.include.all.keys('id','firstName','lastName','email','phone','isOwner','createdAt','updatedAt');",
+              "  pm.expect(profile.id).to.match(/^[0-9a-f-]{36}$/i);",
+              "  pm.expect(profile.isOwner).to.be.a('boolean');",
+              "  pm.expect(Number.isNaN(Date.parse(profile.createdAt))).to.eql(false);",
+              "  pm.expect(Number.isNaN(Date.parse(profile.updatedAt))).to.eql(false);",
+              "});",
+              "pm.test('Aucun secret dans la réponse', () => { pm.expect(profile).to.not.have.any.keys('password','access_token','refresh_token'); });",
+              "pm.test('Modifications enregistrées', () => { pm.expect(profile.firstName).to.eql('Amira'); pm.expect(profile.lastName).to.eql('Recette'); pm.expect(profile.phone).to.eql('+216 22 333 444'); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "POST Become Owner",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/api/profile/become-owner",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "profile",
+            "become-owner"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "if (!String(pm.environment.get('access_token') || '').trim()) {",
+              "  pm.execution.skipRequest();",
+              "  throw new Error('Renseigner un access_token réel dans la valeur locale de l’environnement Postman.');",
+              "}"
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200 et JSON', () => { pm.response.to.have.status(200); pm.response.to.be.json; });",
+              "const profile = pm.response.json();",
+              "pm.test('Contrat canonique du profil', () => {",
+              "  pm.expect(profile).to.include.all.keys('id','firstName','lastName','email','phone','isOwner','createdAt','updatedAt');",
+              "  pm.expect(profile.id).to.match(/^[0-9a-f-]{36}$/i);",
+              "  pm.expect(profile.isOwner).to.be.a('boolean');",
+              "  pm.expect(Number.isNaN(Date.parse(profile.createdAt))).to.eql(false);",
+              "  pm.expect(Number.isNaN(Date.parse(profile.updatedAt))).to.eql(false);",
+              "});",
+              "pm.test('Aucun secret dans la réponse', () => { pm.expect(profile).to.not.have.any.keys('password','access_token','refresh_token'); });",
+              "pm.test('Activation confirmée', () => pm.expect(profile.isOwner).to.eql(true));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "POST Become Owner — répétition",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/api/profile/become-owner",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "profile",
+            "become-owner"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "if (!String(pm.environment.get('access_token') || '').trim()) {",
+              "  pm.execution.skipRequest();",
+              "  throw new Error('Renseigner un access_token réel dans la valeur locale de l’environnement Postman.');",
+              "}"
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200 et JSON', () => { pm.response.to.have.status(200); pm.response.to.be.json; });",
+              "const profile = pm.response.json();",
+              "pm.test('Contrat canonique du profil', () => {",
+              "  pm.expect(profile).to.include.all.keys('id','firstName','lastName','email','phone','isOwner','createdAt','updatedAt');",
+              "  pm.expect(profile.id).to.match(/^[0-9a-f-]{36}$/i);",
+              "  pm.expect(profile.isOwner).to.be.a('boolean');",
+              "  pm.expect(Number.isNaN(Date.parse(profile.createdAt))).to.eql(false);",
+              "  pm.expect(Number.isNaN(Date.parse(profile.updatedAt))).to.eql(false);",
+              "});",
+              "pm.test('Aucun secret dans la réponse', () => { pm.expect(profile).to.not.have.any.keys('password','access_token','refresh_token'); });",
+              "pm.test('Activation idempotente', () => pm.expect(profile.isOwner).to.eql(true));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "GET My Profile sans JWT",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/api/profile/me",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "profile",
+            "me"
+          ]
+        },
+        "auth": {
+          "type": "noauth"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 401', () => pm.response.to.have.status(401));",
+              "pm.test('Erreur JSON propre', () => {",
+              "  pm.response.to.be.json;",
+              "  pm.expect(pm.response.json().code).to.eql('unauthorized');",
+              "  pm.expect(pm.response.json().status).to.eql(401);",
+              "  pm.expect(pm.response.json()).to.not.have.any.keys('token','access_token','password','trace','stackTrace');",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "GET My Profile JWT invalide",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/api/profile/me",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "profile",
+            "me"
+          ]
+        },
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "invalid-test-token",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 401', () => pm.response.to.have.status(401));",
+              "pm.test('Erreur JSON propre', () => {",
+              "  pm.response.to.be.json;",
+              "  pm.expect(pm.response.json().code).to.eql('unauthorized');",
+              "  pm.expect(pm.response.json().status).to.eql(401);",
+              "  pm.expect(pm.response.json()).to.not.have.any.keys('token','access_token','password','trace','stackTrace');",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "PUT My Profile — tentative isOwner",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/api/profile/me",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "profile",
+            "me"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"firstName\": \"Amira\",\n  \"lastName\": \"Recette\",\n  \"phone\": \"+216 22 333 444\",\n  \"isOwner\": true\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "if (!String(pm.environment.get('access_token') || '').trim()) {",
+              "  pm.execution.skipRequest();",
+              "  throw new Error('Renseigner un access_token réel dans la valeur locale de l’environnement Postman.');",
+              "}"
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 400', () => pm.response.to.have.status(400));",
+              "pm.test('Erreur JSON propre', () => {",
+              "  pm.response.to.be.json;",
+              "  pm.expect(pm.response.json().code).to.eql('invalid_request');",
+              "  pm.expect(pm.response.json().status).to.eql(400);",
+              "  pm.expect(pm.response.json()).to.not.have.any.keys('token','access_token','password','trace','stackTrace');",
+              "});"
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

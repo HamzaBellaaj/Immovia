@@ -1,0 +1,32 @@
+# Dependencies and build output
+**/node_modules/
+**/dist/
+**/.angular/
+**/target/
+**/coverage/
+**/test-results/
+postman/*.local.json
+postman/*-report.json
+
+# Local configuration and credentials
+.env
+.env.*
+!.env.example
+**/application-*.local.yml
+**/application-*.local.properties
+**/application-secrets.*
+frontend/src/environments/environment.ts
+*.pem
+*.key
+*.p12
+*.pfx
+*.jks
+*.keystore
+
+# IDE, logs and OS files
+.idea/
+.vscode/
+*.iml
+*.log
+.DS_Store
+Thumbs.db

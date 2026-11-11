@@ -1,0 +1,37 @@
+{
+  "name": "immovia-frontend",
+  "version": "0.0.0",
+  "scripts": {
+    "ng": "ng",
+    "config": "node --env-file-if-exists=.env scripts/configure.mjs",
+    "prestart": "npm run config",
+    "start": "ng serve",
+    "prebuild": "npm run config",
+    "build": "ng build",
+    "test:browser": "node tests/sprint1.browser.cjs",
+    "prewatch": "npm run config",
+    "watch": "ng build --watch --configuration development",
+    "postinstall": "npm run config"
+  },
+  "private": true,
+  "packageManager": "npm@11.6.0",
+  "dependencies": {
+    "@angular/common": "^21.2.0",
+    "@angular/compiler": "^21.2.0",
+    "@angular/core": "^21.2.0",
+    "@angular/forms": "^21.2.0",
+    "@angular/platform-browser": "^21.2.0",
+    "@angular/router": "^21.2.0",
+    "@supabase/supabase-js": "^2.119.0",
+    "rxjs": "~7.8.0",
+    "tslib": "^2.3.0"
+  },
+  "devDependencies": {
+    "@angular/build": "^21.2.29",
+    "@angular/cli": "^21.2.29",
+    "@angular/compiler-cli": "^21.2.0",
+    "playwright": "^1.65.0",
+    "prettier": "^3.8.1",
+    "typescript": "~5.9.2"
+  }
+}

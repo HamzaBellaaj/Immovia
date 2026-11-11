@@ -1,0 +1,42 @@
+<app-auth-layout>
+  <div class="eyebrow">Votre espace personnel</div>
+  <h1>Heureux de vous<br />retrouver.</h1>
+  <p class="intro">
+    Connectez-vous pour retrouver vos biens favoris et gérer votre expérience immobilière.
+  </p>
+  <app-feedback [error]="error()" />
+  <form [formGroup]="form" (ngSubmit)="submit()" novalidate [attr.aria-busy]="busy()">
+    <fieldset [disabled]="busy()">
+      <app-form-field
+        fieldId="login-email"
+        label="Adresse e-mail"
+        type="email"
+        autocomplete="email"
+        placeholder="exemple@email.com"
+        [control]="form.controls.email"
+      />
+      <app-form-field
+        fieldId="login-password"
+        label="Mot de passe"
+        type="password"
+        autocomplete="current-password"
+        placeholder="Votre mot de passe"
+        [control]="form.controls.password"
+      />
+      <div class="form-inline">
+        <span class="fine muted">Votre espace, en toute sérénité</span
+        ><a class="text-link sm" routerLink="/mot-de-passe-oublie">Mot de passe oublié ?</a>
+      </div>
+      <button class="btn btn-primary full" type="submit" [disabled]="busy()">
+        {{ busy() ? 'Connexion…' : 'Se connecter' }} <span aria-hidden="true">→</span>
+      </button>
+    </fieldset>
+  </form>
+  <div class="divider-text">ou continuer avec</div>
+  <button class="btn btn-secondary full" type="button" (click)="google()" [disabled]="busy()">
+    <span class="google-g" aria-hidden="true">G</span> Continuer avec Google
+  </button>
+  <div class="form-switch">
+    Vous n’avez pas de compte ? <a class="text-link" routerLink="/inscription">Créer un compte</a>
+  </div>
+</app-auth-layout>

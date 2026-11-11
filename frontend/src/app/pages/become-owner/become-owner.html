@@ -1,0 +1,101 @@
+<app-dashboard-layout title="Devenir propriétaire">
+  <section class="page-head">
+    <div>
+      <div class="eyebrow">Développez votre espace</div>
+      <h1>Devenir propriétaire</h1>
+      <p>Un seul compte pour découvrir et gérer vos biens immobiliers.</p>
+    </div>
+    <a class="text-link sm" routerLink="/profil">← Retour au profil</a>
+  </section>
+  <app-feedback
+    [error]="profiles.error()"
+    [loading]="profiles.loading() ? 'Chargement de votre profil…' : ''"
+  />
+  @if (profiles.error()) {
+    <button
+      class="btn btn-secondary retry-button"
+      type="button"
+      (click)="profiles.ensureLoaded(true)"
+      [disabled]="profiles.loading()"
+    >
+      Réessayer
+    </button>
+  }
+  <div class="owner-layout">
+    <section class="owner-hero">
+      <div class="eyebrow">Votre prochain chapitre</div>
+      <h2>Vos biens méritent<br />une belle vitrine.</h2>
+      <p>
+        Activez gratuitement votre profil propriétaire et préparez la publication de vos futurs
+        logements.
+      </p>
+      <div class="owner-list">
+        <div class="owner-benefit"><span aria-hidden="true">⌂</span>Gérer vos annonces</div>
+        <div class="owner-benefit"><span aria-hidden="true">▦</span>Suivre les visites</div>
+        <div class="owner-benefit"><span aria-hidden="true">▤</span>Contrats et paiements</div>
+        <div class="owner-benefit"><span aria-hidden="true">↗</span>Suivre vos activités</div>
+      </div>
+      <p class="fine">
+        Les fonctionnalités de gestion des biens seront disponibles dans les prochains sprints.
+      </p>
+    </section>
+    <section class="card">
+      <div class="eyebrow">Activation du compte</div>
+      <h3 class="activation-title">Une étape, et c’est parti.</h3>
+      <p class="card-sub">
+        Le même compte, de nouvelles possibilités. Aucune approbation administrateur nécessaire.
+      </p>
+      <app-feedback [error]="error()" />
+      @if (profiles.profile()?.owner) {
+        <div class="notice alert-success" role="status">
+          ✓ Votre profil propriétaire est activé ! Vous conservez aussi les fonctionnalités
+          utilisateur.
+        </div>
+        <a class="btn btn-primary full" routerLink="/profil">Voir mon profil</a>
+      } @else {
+        <form [formGroup]="form" (ngSubmit)="activate()" novalidate [attr.aria-busy]="busy()">
+          <fieldset [disabled]="busy() || !profiles.profile()">
+            <label class="checkline conditions"
+              ><input type="checkbox" formControlName="accepted" />Je confirme vouloir activer mon
+              espace propriétaire.</label
+            >
+            @if (form.controls.accepted.invalid && form.controls.accepted.touched) {
+              <p class="error-text" role="alert">Confirmez votre choix pour continuer.</p>
+            }
+            <button
+              class="btn btn-primary full"
+              type="submit"
+              [disabled]="busy() || !profiles.profile()"
+            >
+              {{ busy() ? 'Activation…' : 'Activer mon espace propriétaire' }}
+              <span aria-hidden="true">→</span>
+            </button>
+          </fieldset>
+        </form>
+      }
+      <div class="steps">
+        <div class="step">
+          <div class="step-number">01</div>
+          <div>
+            <strong>Activer votre profil</strong>
+            <p>Sans deuxième compte et sans attente de validation.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-number">02</div>
+          <div>
+            <strong>Accéder aux outils de gestion</strong>
+            <p>Disponibles progressivement au fil des sprints.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-number">03</div>
+          <div>
+            <strong>Publier après modération</strong>
+            <p>Les annonces seront contrôlées avant leur affichage public.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+</app-dashboard-layout>
